@@ -1,0 +1,290 @@
+/* =======================
+   BASE / LAYOUT
+   ======================= */
+:root{
+  --bg-dark: #0b0c0f;
+  --muted: #9aa0a6;
+  --gold-1: #f6d365;
+  --gold-2: #f6b73c;
+  --gold-3: #b98b2f;
+  --glass: rgba(255,255,255,0.04);
+  --ease-smooth: cubic-bezier(.22,.9,.36,1);
+  --transition-fast: 260ms var(--ease-smooth);
+  --transition-medium: 480ms var(--ease-smooth);
+  --reduced-motion: 0ms;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+                Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  background: var(--bg-dark);
+  color: #fff;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-y: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* When white-screen active, disable scrollbars and hide content */
+body.is-white{
+  overflow: hidden; /* hide scrollbars */
+}
+
+/* Stage centers content */
+.stage{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:18px;
+  padding:5vh 5vw;
+  position:relative;
+  z-index:1;
+}
+
+/* Hint text */
+.hint{
+  margin:0;
+  color:var(--muted);
+  font-size:clamp(12px, 2vw, 14px);
+  opacity:0.9;
+}
+
+/* =======================
+   BACKGROUND MOTION
+   - a slow, subtle radial gradient shift for depth
+   ======================= */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(1200px 600px at 10% 20%, rgba(255,255,255,0.02), transparent 6%),
+    radial-gradient(800px 400px at 85% 80%, rgba(255,255,255,0.015), transparent 6%),
+    linear-gradient(180deg, rgba(255,255,255,0.01), transparent 40%);
+  mix-blend-mode: screen;
+  opacity:1;
+  transition:opacity var(--transition-medium);
+  transform:translateZ(0);
+}
+
+/* gentle shift animation */
+@keyframes bg-drift {
+  0% { transform: translate3d(-1%, -1%, 0); }
+  50% { transform: translate3d(1%, 1%, 0); }
+  100% { transform: translate3d(-1%, -1%, 0); }
+}
+body::before{
+  animation: bg-drift 18s linear infinite;
+  will-change: transform;
+}
+
+/* Respect reduced motion by turning off the background animation */
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+}
+
+/* =======================
+   GOLD HEADLINE AS A BUTTON
+   - Uses background-clip:text for metallic look
+   - Adds text-shadow for depth and subtle shimmer layer
+   ======================= */
+.gold-btn{
+  /* Make the clickable area large enough for touch */
+  padding: clamp(18px, 3.5vw, 28px) clamp(18px, 5vw, 60px);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 14px;
+  outline: none;
+  position: relative;
+  z-index:2;
+  display:inline-block;
+
+  /* responsive large type */
+  font-weight:700;
+  font-size: clamp(36px, 9vw, 96px);
+  line-height:1;
+  letter-spacing: -0.02em;
+  text-transform: none;
+
+  /* Metal / gold gradient */
+  background-image: linear-gradient(90deg, var(--gold-3) 0%, var(--gold-2) 35%, #fff9d6 45%, var(--gold-1) 65%, var(--gold-3) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent; /* text is filled by background gradient */
+  -webkit-text-fill-color: transparent;
+
+  /* depth using layered text-shadow (subtle) */
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.45),
+    0 6px 18px rgba(0,0,0,0.55);
+  transition: transform var(--transition-fast), filter var(--transition-fast), text-shadow var(--transition-fast);
+  user-select: none;
+  -webkit-user-select:none;
+}
+
+/* Focus ring for keyboard users */
+.gold-btn:focus{
+  box-shadow: 0 0 0 6px rgba(246,179,60,0.12);
+  border-radius: 16px;
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* Hover / focus micro-interaction: glow + scale */
+.gold-btn:hover,
+.gold-btn:focus{
+  transform: translateY(-3px) scale(1.02);
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.45),
+    0 10px 28px rgba(255,189,73,0.09);
+  filter: drop-shadow(0 18px 32px rgba(0,0,0,0.55));
+  cursor: pointer;
+}
+
+/* Pressed (active) micro-interaction */
+.gold-btn:active{
+  transform: translateY(0) scale(0.995);
+  transition: transform 120ms ease-out;
+}
+
+/* =======================
+   SHIMMER (moving highlight)
+   - A pseudo-element slides across text to simulate a highlight
+   - Disabled for reduced-motion
+   ======================= */
+.gold-btn::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+  /* a diagonal white stripe that will move across using background-position */
+  background: linear-gradient(120deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.18) 45%, rgba(255,255,255,0.42) 50%, rgba(255,255,255,0.18) 55%, rgba(255,255,255,0.0) 100%);
+  background-size: 200% 200%;
+  mix-blend-mode: overlay;
+  opacity:0.9;
+  transform: translateZ(0);
+  transition: opacity var(--transition-fast);
+  mask-image: linear-gradient(#000, #000); /* ensures it only affects text due to text-clip */
+}
+
+/* animate shimmer across */
+@keyframes shimmer-sweep {
+  0% { background-position: -120% 0; opacity: 0; }
+  10% { opacity: 0.9; }
+  50% { background-position: 120% 0; opacity: 0.9; }
+  90% { opacity: 0.9; }
+  100% { background-position: 240% 0; opacity: 0; }
+}
+.gold-btn::after {
+  animation: shimmer-sweep 2.8s linear infinite;
+  will-change: background-position, opacity;
+}
+
+/* If reduced motion is requested, disable shimmer */
+@media (prefers-reduced-motion: reduce) {
+  .gold-btn::after { animation: none; opacity: 0; }
+  :root { --transition-medium: var(--reduced-motion); --transition-fast: var(--reduced-motion); }
+}
+
+/* =======================
+   RIPPLE (micro-interaction on click)
+   - created/removed by JS; basic styling here
+   ======================= */
+.ripple {
+  position:absolute;
+  border-radius:50%;
+  transform: translate(-50%, -50%) scale(0.2);
+  pointer-events:none;
+  opacity:0.6;
+  width:24px;
+  height:24px;
+  background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0) 70%);
+  animation: ripple-pop 560ms var(--ease-smooth);
+  z-index:4;
+}
+@keyframes ripple-pop {
+  to { transform: translate(-50%, -50%) scale(12); opacity:0; }
+}
+
+/* =======================
+   WHITE OVERLAY
+   - initial state hidden and transparent
+   - when body.is-white applied the overlay fades in and stage content dims/hides
+   ======================= */
+.white-overlay{
+  position:fixed;
+  inset:0;
+  background: #fff;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  z-index:50;
+  transition: opacity var(--transition-medium), visibility var(--transition-medium);
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  padding:18px;
+}
+
+/* show overlay when body has class */
+body.is-white .white-overlay{
+  visibility:visible;
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* IMPORTANT: hide original stage visually when white-screen active for a pure white result */
+body.is-white .stage{
+  opacity:0;
+  transform: scale(0.995);
+  transition: opacity var(--transition-medium), transform var(--transition-medium);
+  pointer-events:none;
+}
+
+/* Back control styling (small, unobtrusive) */
+.back-btn{
+  background: transparent;
+  border: none;
+  color: #111;
+  font-weight:600;
+  font-size: clamp(14px, 2.2vw, 16px);
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  margin-left:6px;
+  opacity:0.98;
+  transition: transform 160ms var(--ease-smooth), background var(--transition-fast);
+}
+
+/* subtle hover for back */
+.back-btn:hover, .back-btn:focus{
+  background: rgba(0,0,0,0.04);
+  transform: translateY(-1px);
+  outline: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+/* hide back by default to avoid tabbing into it until white overlay active */
+.back-btn[aria-hidden="true"]{
+  display:none;
+}
+
+/* =======================
+   RESPONSIVENESS
+   ======================= */
+@media (max-width:520px){
+  .gold-btn{
+    font-size: clamp(28px, 12vw, 48px);
+    padding: 18px 28px;
+    border-radius: 12px;
+  }
+  .back-btn{ font-size:14px; padding:8px 10px; }
+}
