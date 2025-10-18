@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Always Useful</title>
+  <!-- Optional: system font stack for crisp rendering -->
+  <meta name="description" content="Always Useful — gold headline demo" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="stage" id="stage" aria-live="polite">
+    <!-- Large clickable headline. Using a real button ensures keyboard/ARIA semantics by default. -->
+    <button id="headline"
+            class="gold-btn"
+            aria-label="Open Always Useful"
+            aria-haspopup="true"
+            type="button">
+      Always Useful
+      <!-- decorative shimmer element is handled in CSS -->
+    </button>
+
+    <!-- small hint (non-essential) visible beneath headline -->
+    <p class="hint">Activate with click, Enter, or Space</p>
+  </main>
+
+  <!-- Full-screen white overlay that will be revealed when body.has-white is toggled -->
+  <div class="white-overlay" id="whiteOverlay" aria-hidden="true">
+    <!-- Back control: keyboard-accessible and visible only while white overlay is active -->
+    <button id="backBtn" class="back-btn" aria-label="Go back to the gold page" type="button">
+      ← Back
+    </button>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
